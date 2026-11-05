@@ -1,5 +1,3 @@
-// Panel resumen con indicadores segun el rol.
-
 const indicador = (numero, nombre) =>
   `<div class="caja indicador"><div class="numero">${numero}</div><div class="nombre">${nombre}</div></div>`;
 
@@ -15,11 +13,22 @@ const iniciar = async () => {
     avisar(e.message, "error");
     return;
   }
-  if (datos.rol === "profesor") {
+  if (datos.rol === "admin") {
+    panelAdmin(datos);
+  } else if (datos.rol === "profesor") {
     panelProfesor(datos);
   } else {
     panelEstudiante(datos);
   }
+};
+
+const panelAdmin = (d) => {
+  $("#indicadores").innerHTML =
+    indicador(d.profesores, "Profesores") +
+    indicador(d.estudiantes, "Estudiantes") +
+    indicador(d.tutorias, "Tutorías");
+
+  $("#detalle").innerHTML = `<div class="acciones"><a class="boton" href="profesores.php">Gestionar profesores</a></div>`;
 };
 
 const panelProfesor = (d) => {
@@ -33,7 +42,7 @@ const panelProfesor = (d) => {
   const filas = d.tutorias.map((t) => {
     const faltan = Math.max(0, t.cupo_min - t.ocupados);
     return `<tr>
-        <td><a href="tutoria.html?id=${t.id}">${esc(t.titulo)}</a><br><span class="suave">${esc(t.tema)}</span></td>
+        <td><a href="tutoria.php?id=${t.id}">${esc(t.titulo)}</a><br><span class="suave">${esc(t.tema)}</span></td>
         <td>${fmtFecha(t.fecha)}</td>
         <td>${insignia(t.estado)}</td>
         <td class="col-cupos">${barraCupos(t)}</td>
@@ -46,7 +55,7 @@ const panelProfesor = (d) => {
       <thead><tr><th>Tutoría</th><th>Fecha</th><th>Estado</th><th>Cupos</th><th>Mínimo</th></tr></thead>
       <tbody>${filas || '<tr><td colspan="5" class="vacio">Aún no has creado tutorías.</td></tr>'}</tbody>
     </table>
-    <div class="acciones"><a class="boton" href="tutorias.html">Gestionar tutorías</a></div></div>`;
+    <div class="acciones"><a class="boton" href="tutorias.php">Gestionar tutorías</a></div></div>`;
 };
 
 const panelEstudiante = (d) => {
@@ -58,7 +67,7 @@ const panelEstudiante = (d) => {
     indicador(d.solicitudes.cancelada, "Canceladas");
 
   const filas = d.proximas.map((t) => `<tr>
-      <td><a href="tutoria.html?id=${t.id}">${esc(t.titulo)}</a><br><span class="suave">${esc(t.tema)}</span></td>
+      <td><a href="tutoria.php?id=${t.id}">${esc(t.titulo)}</a><br><span class="suave">${esc(t.tema)}</span></td>
       <td>${fmtFecha(t.fecha)} ${fmtHora(t.hora_inicio)}</td>
       <td>${esc(t.profesor)}</td>
       <td>${insignia(t.estado)}</td>
@@ -69,8 +78,8 @@ const panelEstudiante = (d) => {
       <thead><tr><th>Tutoría</th><th>Fecha</th><th>Profesor</th><th>Estado</th></tr></thead>
       <tbody>${filas || '<tr><td colspan="4" class="vacio">No tienes tutorías próximas aceptadas.</td></tr>'}</tbody>
     </table>
-    <div class="acciones"><a class="boton" href="tutorias.html">Buscar tutorías</a>
-    <a class="boton secundario" href="mis-solicitudes.html">Ver mis solicitudes</a></div></div>`;
+    <div class="acciones"><a class="boton" href="tutorias.php">Buscar tutorías</a>
+    <a class="boton secundario" href="mis-solicitudes.php">Ver mis solicitudes</a></div></div>`;
 };
 
 iniciar();
