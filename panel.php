@@ -31,5 +31,9 @@ Pagina::privada();
     <div id="indicadores" class="indicadores" aria-live="polite"></div>
     <section id="detalle" aria-label="Detalle del resumen"></section>
   </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/sesion.js"></script>
+  <script src="js/panel.js"></script>
 </body>
 </html>

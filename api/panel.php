@@ -5,12 +5,20 @@ require_once(__DIR__ . "/core/Auth.php");
 $pdo = new Connection();
 $u = Auth::requiere($pdo);
 
-// Cuenta filas con una consulta preparada
 function contar(PDO $pdo, string $sql, array $args): int
 {
     $st = $pdo->prepare($sql);
     $st->execute($args);
     return (int)$st->fetchColumn();
+}
+
+if ($u["rol"] === "admin") {
+    Response::success([
+        "rol" => "admin",
+        "profesores" => contar($pdo, "SELECT COUNT(*) FROM profesores", []),
+        "estudiantes" => contar($pdo, "SELECT COUNT(*) FROM estudiantes", []),
+        "tutorias" => contar($pdo, "SELECT COUNT(*) FROM tutorias", []),
+    ]);
 }
 
 if ($u["rol"] === "profesor") {
@@ -24,7 +32,6 @@ if ($u["rol"] === "profesor") {
         "solicitudes_pendientes" => contar($pdo, "SELECT COUNT(*) FROM solicitudes s JOIN tutorias t ON t.id = s.tutoria_id WHERE t.profesor_id = ? AND s.estado = 'pendiente'", [$id]),
     ];
 
-    // Progreso de cada tutoria activa hacia su cupo minimo/maximo
     $st = $pdo->prepare("SELECT t.id, t.titulo, t.tema, t.fecha, t.cupo_min, t.cupo_max, t.estado,
             (SELECT COUNT(*) FROM inscripciones i WHERE i.tutoria_id = t.id) AS ocupados
         FROM tutorias t WHERE t.profesor_id = ? AND t.estado <> 'cancelada' ORDER BY t.fecha");
@@ -51,5 +58,5 @@ Response::success([
     "rol" => "estudiante",
     "solicitudes" => $por_estado,
     "proximas" => $st->fetchAll(),
-    "disponibles" => contar($pdo, "SELECT COUNT(*) FROM tutorias WHERE estado <> 'cancelada' AND fecha >= CURDATE()", []),
+    "disponibles" => contar($pdo, "SELECT COUNT(*) FROM tutorias WHERE estado <> 'cancelada' AND TIMESTAMP(fecha, hora_inicio) > ?", [date("Y-m-d H:i:s")]),
 ]);
