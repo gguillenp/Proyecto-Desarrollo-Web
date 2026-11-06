@@ -1,16 +1,20 @@
 <?php
+// Respuestas JSON con formato {success, message, data}
 class Response
 {
+    // Respuesta correcta
     public static function success(mixed $data = null, string $message = "OK", int $status = 200): void
     {
         self::send(["success" => true, "message" => $message, "data" => $data], $status);
     }
 
+    // Respuesta de error
     public static function error(string $message, int $code = -1, int $status = 400): void
     {
         self::send(["success" => false, "message" => $message, "code" => $code], $status);
     }
 
+    // Envía el JSON y termina el script
     private static function send(array $body, int $status): void
     {
         http_response_code($status);

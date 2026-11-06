@@ -1,7 +1,9 @@
 <?php
+// Conexión PDO a MySQL usando los datos de Configuration.php
 require_once(__DIR__  .  "/Configuration.php");
 require_once(__DIR__  .  "/core/Response.php");
 
+// Hora de Guatemala para comparar fechas
 date_default_timezone_set("America/Guatemala");
 
 class Connection extends PDO

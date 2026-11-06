@@ -1,5 +1,7 @@
+// Mis estudiantes (profesor): inscritos en sus tutorías
 let estudiantes = [];
 
+// Arranque: carga los datos una sola vez
 const iniciar = async () => {
   if (!await iniciarPagina("profesor")) return;
   try {
@@ -11,12 +13,14 @@ const iniciar = async () => {
   }
 };
 
+// Opciones del filtro por tutoría
 const llenarFiltro = () => {
   const tutorias = new Map(estudiantes.map((e) => [e.tutoria_id, e.titulo]));
   $("#f_tutoria").innerHTML += [...tutorias].map(([id, titulo]) =>
     `<option value="${id}">${esc(titulo)}</option>`).join("");
 };
 
+// Pinta la tabla según el filtro
 const pintar = () => {
   const filtro = $("#f_tutoria").value;
   const lista = estudiantes.filter((e) => !filtro || String(e.tutoria_id) === filtro);
@@ -25,6 +29,7 @@ const pintar = () => {
     : '<tr><td colspan="6" class="vacio">No hay estudiantes inscritos.</td></tr>';
 };
 
+// Fila de un estudiante
 const fila = (e) => `<tr>
     <td>${esc(e.nombre)}</td>
     <td>${esc(e.correo)}</td>
@@ -34,6 +39,7 @@ const fila = (e) => `<tr>
     <td>${fmtFechaHora(e.fecha_inscripcion)}</td>
   </tr>`;
 
+// Filtro por tutoría
 $("#f_tutoria").addEventListener("change", pintar);
 
 iniciar();

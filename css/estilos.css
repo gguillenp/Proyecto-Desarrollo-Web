@@ -1,49 +1,70 @@
+/* Estilos de MarianOpen */
+/* Base y fondos con patrón */
 body {
   margin: 0;
+  min-height: 100vh;
   font-family: Arial, sans-serif;
-  background: #f2f2f2;
+  background: #f6f8fb url("../img/fondo-academico.webp") repeat;
+  background-size: 600px;
   color: #222;
 }
+body.acceso { background-image: url("../img/fondo-codigo.webp"); }
 
 * { box-sizing: border-box; }
 
+/* Encabezado y logo */
 .encabezado {
-  background: #2c5aa0;
-  color: white;
+  background: white;
+  border-bottom: 3px solid #c8202f;
   padding: 10px;
 }
-.marca { font-weight: bold; margin: 0 0 5px; }
+.marca { display: inline-block; margin: 0 0 5px; }
+.marca img { display: block; height: 31px; width: auto; }
+.logo { display: block; width: 100%; height: auto; margin: 0 auto 10px; }
+/* Menú de navegación (botones) */
+.menu { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .menu a, .menu button {
-  color: white;
-  background: none;
+  color: #1b3a6b;
+  background: #eef2f8;
   border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
   font: inherit;
-  margin-right: 10px;
+  font-size: 0.9em;
+  text-decoration: none;
   cursor: pointer;
 }
-.menu a.activo { text-decoration: underline; }
+.menu a:hover, .menu button:hover { background: #dde5f1; }
+.menu a.activo { background: #1b3a6b; color: white; }
+.menu #btnSalir { background: #fbeaec; color: #c8202f; }
+.menu .usuario { color: #666; font-size: 0.9em; margin-left: auto; }
 
+/* Contenedor y cajas */
 main { padding: 15px; max-width: 1000px; margin: 0 auto; }
 
 .caja {
   background: white;
-  border: 1px solid #ccc;
+  border: 1px solid #e1e5ec;
+  border-radius: 12px;
   padding: 15px;
   margin-bottom: 15px;
 }
 .centrado .caja { max-width: 400px; margin: 40px auto; }
 .separado { margin-top: 15px; }
 
+/* Formularios */
 label { display: block; margin: 8px 0 3px; }
-input, select, textarea { width: 100%; padding: 6px; border: 1px solid #aaa; font: inherit; }
+input, select, textarea { width: 100%; padding: 6px 8px; border: 1px solid #c5ccd6; border-radius: 8px; font: inherit; }
 label.opcion input { width: auto; }
 input::-webkit-calendar-picker-indicator { display: none; }
 .campo-corto { max-width: 200px; }
 
+/* Botones */
 .boton {
   background: #2c5aa0;
   color: white;
   border: none;
+  border-radius: 8px;
   padding: 7px 14px;
   cursor: pointer;
   text-decoration: none;
@@ -56,6 +77,7 @@ input::-webkit-calendar-picker-indicator { display: none; }
 .boton.ancho { width: 100%; }
 .boton:disabled { opacity: 0.5; }
 
+/* Utilidades de espaciado y texto */
 .acciones { margin-top: 10px; }
 .acciones .boton { margin: 0 5px 5px 0; }
 .sin-margen-arriba { margin-top: 0; }
@@ -64,31 +86,43 @@ input::-webkit-calendar-picker-indicator { display: none; }
 .suave, .datos { color: #666; font-size: 0.9em; }
 .vacio { text-align: center; color: #666; }
 
-.insignia { font-size: 0.8em; font-weight: bold; padding: 1px 6px; background: #ddd; }
+/* Insignias de estado */
+.insignia { font-size: 0.8em; font-weight: bold; padding: 2px 8px; background: #eef0f3; border-radius: 999px; }
 .insignia.abierta, .insignia.aceptada { color: #27ae60; }
 .insignia.confirmada { color: #2c5aa0; }
 .insignia.pendiente { color: #d68910; }
 .insignia.cancelada, .insignia.rechazada { color: #c0392b; }
+.insignia.finalizada { color: #555; }
+.insignia.aprobado { color: #27ae60; }
+.insignia.reprobado { color: #c0392b; }
+.campo-nota { max-width: 90px; }
+td input[type="checkbox"] { width: auto; }
 
+/* Cupos */
 .cupo { margin: 8px 0; font-size: 0.9em; }
 
+/* Tablas */
 .tabla-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 6px; border-bottom: 1px solid #ccc; }
 
+/* Indicadores del panel */
 .indicador { text-align: center; }
 .indicador .numero { font-size: 1.8em; font-weight: bold; }
 
+/* Avisos flotantes */
 .aviso {
   position: fixed;
   bottom: 10px;
   right: 10px;
   padding: 10px 15px;
+  border-radius: 8px;
   background: #27ae60;
   color: white;
 }
 .aviso.error { background: #c0392b; }
 
+/* Ocultar elementos */
 .oculto { display: none !important; }
 
 .solo-lectores {
@@ -99,6 +133,7 @@ th, td { text-align: left; padding: 6px; border-bottom: 1px solid #ccc; }
   clip: rect(0, 0, 0, 0);
 }
 
+/* Pantallas medianas: rejillas en columnas */
 @media (min-width: 768px) {
   .fila, .filtros, .rejilla, .indicadores {
     display: grid;
@@ -109,6 +144,7 @@ th, td { text-align: left; padding: 6px; border-bottom: 1px solid #ccc; }
   .rejilla .vacio { grid-column: 1 / -1; }
 }
 
+/* Pantallas grandes */
 @media (min-width: 1024px) {
-  .indicadores { grid-template-columns: repeat(5, 1fr); }
+  .indicadores { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
 }
