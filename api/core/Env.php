@@ -1,8 +1,10 @@
 <?php
+// Lee el archivo .env y entrega sus valores
 class Env
 {
     private static array $variables = [];
 
+    // Carga el .env línea por línea (CLAVE=valor)
     public static function load(string $ruta): void
     {
         if (!is_readable($ruta)) {
@@ -22,6 +24,7 @@ class Env
         }
     }
 
+    // Devuelve un valor: primero variable de entorno, luego .env
     public static function get(string $clave, ?string $porDefecto = null): ?string
     {
         $entorno = getenv($clave);

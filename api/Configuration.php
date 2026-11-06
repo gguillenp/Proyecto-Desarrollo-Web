@@ -1,21 +1,26 @@
 <?php
+// Configuración general: lee el .env, arranca la sesión y define constantes
 require_once(__DIR__ . "/core/Env.php");
 Env::load(__DIR__ . "/core/.env");
 
+// Cookie de sesión segura
 ini_set('session.cookie_secure', Env::get('COOKIE_SECURE', '1'));
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');
 
+// Inicia la sesión de PHP
 session_name(Env::get('COOKIE_NAME', 'TUTORIAS_SID'));
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Cookie de "Recordarme"
 define('COOKIE_NAME', Env::get('COOKIE_NAME', 'TUTORIAS_SID'));
 define('COOKIE_KEY', Env::get('COOKIE_KEY'));
 define('COOKIE_SECURE', Env::get('COOKIE_SECURE', '1') === '1');
 define('DIAS_RECORDAR', 30);
 
+// Datos de conexión a la base
 define("HOST_DB", Env::get('HOST_DB'));
 define("PORT_DB", Env::get('PORT_DB', '3306'));
 define("USER_DB", Env::get('USER_DB'));

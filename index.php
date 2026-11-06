@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . "/api/core/Pagina.php");
+// Inicio de sesión (solo sin sesión)
 Pagina::publica();
 ?>
 <!DOCTYPE html>
@@ -7,20 +8,21 @@ Pagina::publica();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Iniciar sesión - Sistema de Tutorías</title>
-  <meta name="description" content="Inicia sesión en el Sistema de Tutorías para solicitar tutorías académicas o gestionar las que ofreces como profesor.">
-  <meta property="og:title" content="Sistema de Tutorías">
+  <title>Iniciar sesión - MarianOpen</title>
+  <meta name="description" content="Inicia sesión en MarianOpen para solicitar tutorías académicas o gestionar las que ofreces como profesor.">
+  <meta property="og:title" content="MarianOpen">
   <meta property="og:description" content="Consulta tutorías por materia y tema, solicita un cupo y sigue el estado de tus solicitudes.">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Sistema de Tutorías">
+  <meta property="og:site_name" content="MarianOpen">
   <meta property="og:locale" content="es_GT">
   <link rel="stylesheet" href="css/estilos.css">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.png" type="image/png">
 </head>
-<body>
+<body class="acceso">
+  <!-- Formulario de inicio de sesión -->
   <main class="centrado">
     <section class="caja" aria-labelledby="titulo">
-      <h1 id="titulo">Sistema de Tutorías</h1>
+      <h1 id="titulo"><img class="logo" src="img/logo-eslogan.webp" alt="MarianOpen. Tus tutorías, abiertas y de código abierto" width="800" height="204"></h1>
       <p class="suave">Inicia sesión con tu correo y contraseña.</p>
 
       <form id="formLogin" novalidate>
@@ -38,14 +40,18 @@ Pagina::publica();
         <button type="submit" class="boton ancho">Entrar</button>
       </form>
 
+      <!-- Enlace al registro -->
       <p class="suave sin-margen-abajo">¿No tienes cuenta? <a href="registro.php">Regístrate</a></p>
     </section>
   </main>
 
   <script src="js/api.js"></script>
+  <!-- Lógica del login -->
   <script>
+    // Si ya hay sesión, va directo al panel
     api("api/sesion.php").then(() => { location.href = "panel.php"; }).catch(() => {});
 
+    // Valida y envía el login
     $("#formLogin").addEventListener("submit", async (evento) => {
       evento.preventDefault();
       const error = $("#error");

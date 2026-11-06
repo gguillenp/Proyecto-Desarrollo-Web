@@ -1,4 +1,5 @@
 <?php
+// POST: registro público, siempre como estudiante
 require_once(__DIR__ . "/Connection.php");
 require_once(__DIR__ . "/core/Usuarios.php");
 

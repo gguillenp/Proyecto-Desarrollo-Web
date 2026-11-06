@@ -1,16 +1,36 @@
 <?php
+// Sesión de usuarios: login, cookie "Recordarme" y permisos por rol
 class Auth
 {
+    // Tabla de la base que corresponde a cada rol
     private const TABLAS = ["admin" => "administradores", "profesor" => "profesores", "estudiante" => "estudiantes"];
 
+    // Usuario con sesión activa, o null
     public static function usuario(PDO $pdo): ?array
     {
         if (isset($_SESSION["id"], $_SESSION["rol"])) {
+            if (!self::activo($pdo, $_SESSION["rol"], (int)$_SESSION["id"])) {
+                self::cerrarSesion();
+                return null;
+            }
             return ["id" => (int)$_SESSION["id"], "rol" => $_SESSION["rol"], "nombre" => $_SESSION["nombre"]];
         }
         return self::restaurarDesdeCookie($pdo);
     }
 
+    // ¿La cuenta sigue activa? (si la desactivan, pierde la sesión)
+    private static function activo(PDO $pdo, string $rol, int $id): bool
+    {
+        $tabla = self::tabla($rol);
+        if ($tabla === null) {
+            return false;
+        }
+        $st = $pdo->prepare("SELECT 1 FROM $tabla WHERE id = ? AND estado = 1");
+        $st->execute([$id]);
+        return (bool)$st->fetch();
+    }
+
+    // Exige sesión (y un rol, si se indica); si no, responde error
     public static function requiere(PDO $pdo, ?string $rol = null): array
     {
         $usuario = self::usuario($pdo);
@@ -23,11 +43,13 @@ class Auth
         return $usuario;
     }
 
+    // Nombre de la tabla de un rol
     public static function tabla(string $rol): ?string
     {
         return self::TABLAS[$rol] ?? null;
     }
 
+    // Guarda el usuario en la sesión y, si pidió, la cookie de 30 días
     public static function iniciarSesion(int $id, string $rol, string $nombre, bool $recordar): void
     {
         session_regenerate_id(true);
@@ -42,6 +64,7 @@ class Auth
         }
     }
 
+    // Borra la sesión y la cookie
     public static function cerrarSesion(): void
     {
         $_SESSION = [];
@@ -49,6 +72,7 @@ class Auth
         self::poner(COOKIE_NAME . "_recordar", "", time() - 3600);
     }
 
+    // Recupera la sesión desde la cookie firmada
     private static function restaurarDesdeCookie(PDO $pdo): ?array
     {
         $valor = $_COOKIE[COOKIE_NAME . "_recordar"] ?? "";
@@ -80,11 +104,13 @@ class Auth
         return ["id" => (int)$u["id"], "rol" => $rol, "nombre" => $u["nombre"]];
     }
 
+    // Firma HMAC para que la cookie no se pueda falsificar
     private static function firmar(string $datos): string
     {
         return hash_hmac("sha256", $datos, COOKIE_KEY);
     }
 
+    // Escribe una cookie segura
     private static function poner(string $nombre, string $valor, int $expira): void
     {
         setcookie($nombre, $valor, [

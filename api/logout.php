@@ -1,4 +1,5 @@
 <?php
+// Cierra la sesión
 require_once(__DIR__ . "/Connection.php");
 require_once(__DIR__ . "/core/Auth.php");
 

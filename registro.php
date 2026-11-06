@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . "/api/core/Pagina.php");
+// Registro público: crea cuentas de estudiante
 Pagina::publica();
 ?>
 <!DOCTYPE html>
@@ -7,19 +8,21 @@ Pagina::publica();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Crear cuenta - Sistema de Tutorías</title>
-  <meta name="description" content="Crea tu cuenta de estudiante en el Sistema de Tutorías y empieza a solicitar tutorías.">
-  <meta property="og:title" content="Crear cuenta - Sistema de Tutorías">
+  <title>Crear cuenta - MarianOpen</title>
+  <meta name="description" content="Crea tu cuenta de estudiante en MarianOpen y empieza a solicitar tutorías.">
+  <meta property="og:title" content="Crear cuenta - MarianOpen">
   <meta property="og:description" content="Regístrate como estudiante para solicitar tutorías.">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Sistema de Tutorías">
+  <meta property="og:site_name" content="MarianOpen">
   <meta property="og:locale" content="es_GT">
   <link rel="stylesheet" href="css/estilos.css">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.png" type="image/png">
 </head>
-<body>
+<body class="acceso">
+  <!-- Formulario de registro -->
   <main class="centrado">
     <section class="caja" aria-labelledby="titulo">
+      <img class="logo" src="img/logo-eslogan.webp" alt="MarianOpen. Tus tutorías, abiertas y de código abierto" width="800" height="204">
       <h1 id="titulo">Crear cuenta</h1>
 
       <form id="formRegistro" novalidate>
@@ -44,7 +47,9 @@ Pagina::publica();
   </main>
 
   <script src="js/api.js"></script>
+  <!-- Lógica del registro -->
   <script>
+    // Valida y crea la cuenta; luego vuelve al login
     $("#formRegistro").addEventListener("submit", async (evento) => {
       evento.preventDefault();
       const error = $("#error");
