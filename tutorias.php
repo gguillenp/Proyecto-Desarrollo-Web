@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . "/api/core/Pagina.php");
+// Lista de tutorías (cualquier rol)
 Pagina::privada();
 ?>
 <!DOCTYPE html>
@@ -7,28 +8,31 @@ Pagina::privada();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tutorías - Sistema de Tutorías</title>
+  <title>Tutorías - MarianOpen</title>
   <meta name="description" content="Busca tutorías por materia, tema, fecha o profesor, solicita un cupo o crea y gestiona tus propias tutorías.">
   <meta name="robots" content="noindex, nofollow">
-  <meta property="og:title" content="Tutorías - Sistema de Tutorías">
+  <meta property="og:title" content="Tutorías - MarianOpen">
   <meta property="og:description" content="Busca tutorías por materia, tema, fecha o profesor.">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Sistema de Tutorías">
+  <meta property="og:site_name" content="MarianOpen">
   <meta property="og:locale" content="es_GT">
   <link rel="stylesheet" href="css/estilos.css">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.png" type="image/png">
 </head>
 <body>
+  <!-- Encabezado: logo y menú (el menú lo pinta js/sesion.js) -->
   <header class="encabezado">
     <div class="contenido">
-      <p class="marca">Sistema de Tutorías</p>
+      <a class="marca" href="panel.php"><img src="img/logo.webp" alt="MarianOpen" width="160" height="31"></a>
       <nav class="menu" id="menu" aria-label="Menú principal"></nav>
     </div>
   </header>
 
+  <!-- Contenido principal de la página -->
   <main>
     <h1>Tutorías</h1>
 
+    <!-- Crear/editar tutoría (profesor y admin) -->
     <section id="zonaProfesor" class="oculto" aria-label="Gestión de tutorías">
       <button type="button" class="boton" id="btnNueva">+ Nueva tutoría</button>
 
@@ -70,6 +74,7 @@ Pagina::privada();
       </form>
     </section>
 
+    <!-- Filtros de búsqueda -->
     <form id="filtros" class="caja filtros separado" aria-label="Filtros de tutorías">
       <div>
         <label for="f_materia">Materia</label>
@@ -83,7 +88,7 @@ Pagina::privada();
         <label for="f_fecha">Fecha</label>
         <input type="date" id="f_fecha">
       </div>
-      <div>
+      <div id="divProfesor">
         <label for="f_profesor">Profesor</label>
         <input type="search" id="f_profesor" placeholder="Nombre">
       </div>
@@ -93,11 +98,9 @@ Pagina::privada();
           <option value="">Todos</option>
           <option value="abierta">Abierta</option>
           <option value="confirmada">Confirmada</option>
+          <option value="finalizada">Finalizada</option>
           <option value="cancelada">Cancelada</option>
         </select>
-      </div>
-      <div id="divMias" class="oculto">
-        <label class="opcion" for="f_mias"><input type="checkbox" id="f_mias"> Solo las mías</label>
       </div>
       <div class="acciones sin-margen-arriba">
         <button type="submit" class="boton">Filtrar</button>
@@ -105,9 +108,11 @@ Pagina::privada();
       </div>
     </form>
 
+    <!-- Tarjetas de tutorías -->
     <div id="lista" class="rejilla" aria-live="polite"></div>
   </main>
 
+  <!-- Scripts: utilidades, sesión/menú y lógica de esta página -->
   <script src="js/api.js"></script>
   <script src="js/sesion.js"></script>
   <script src="js/tutorias.js"></script>

@@ -1,22 +1,33 @@
+// Página Tutorías: lista con filtros y formulario de crear/editar
+// Usuario con sesión
 let usuario = null;
 
+// Prepara la página según el rol
 const iniciar = async () => {
   usuario = await iniciarPagina();
   if (!usuario) return;
 
+  // Llena los selectores de materia
   const materias = await api("api/materias.php");
   for (const m of materias) {
     $("#f_materia").add(new Option(m.nombre, m.id));
     $("#materia_id").add(new Option(m.nombre, m.id));
   }
 
+  // El profesor crea; no necesita filtrar por profesor
   if (usuario.rol === "profesor") {
     $("#zonaProfesor").classList.remove("oculto");
-    $("#divMias").classList.remove("oculto");
+    $("#divProfesor").classList.add("oculto");
+  }
+  // El admin edita pero no crea
+  if (usuario.rol === "admin") {
+    $("#zonaProfesor").classList.remove("oculto");
+    $("#btnNueva").classList.add("oculto");
   }
 
+  // Si viene ?editar=ID, abre el formulario
   const editar = new URLSearchParams(location.search).get("editar");
-  if (editar && usuario.rol === "profesor") {
+  if (editar && usuario.rol !== "estudiante") {
     try {
       abrirFormulario(await api("api/tutorias.php?id=" + encodeURIComponent(editar)));
     } catch (e) {
@@ -27,6 +38,7 @@ const iniciar = async () => {
   cargar();
 };
 
+// Pide la lista con los filtros elegidos
 const cargar = async () => {
   const params = new URLSearchParams();
   if ($("#f_materia").value) params.set("materia_id", $("#f_materia").value);
@@ -34,7 +46,6 @@ const cargar = async () => {
   if ($("#f_fecha").value) params.set("fecha", $("#f_fecha").value);
   if ($("#f_profesor").value.trim()) params.set("profesor", $("#f_profesor").value.trim());
   if ($("#f_estado").value) params.set("estado", $("#f_estado").value);
-  if ($("#f_mias").checked) params.set("mias", "1");
 
   try {
     const lista = await api("api/tutorias.php?" + params.toString());
@@ -46,11 +57,13 @@ const cargar = async () => {
   }
 };
 
+// Tarjeta de una tutoría con sus botones
 const tarjeta = (t) => {
-  const esDueno = usuario.rol === "profesor" && t.profesor_id === usuario.id;
+  const puedeGestionar = usuario.rol === "admin" || (usuario.rol === "profesor" && t.profesor_id === usuario.id);
   const nombre = esc(t.titulo);
   let botones = `<a class="boton secundario chico" href="tutoria.php?id=${t.id}" aria-label="Ver detalle de ${nombre}">Ver detalle</a>`;
 
+  // Estudiante: solicitar o ver el estado de su solicitud
   if (usuario.rol === "estudiante") {
     const solicitud = t.mi_solicitud_estado;
     if (solicitud && solicitud !== "cancelada") {
@@ -61,7 +74,8 @@ const tarjeta = (t) => {
       botones += ' <span class="suave">Sin cupos</span>';
     }
   }
-  if (esDueno) {
+  // Dueño o admin: editar y eliminar
+  if (puedeGestionar) {
     botones += ` <button type="button" class="boton chico" data-accion="editar" data-id="${t.id}" aria-label="Editar ${nombre}">Editar</button>
                  <button type="button" class="boton peligro chico" data-accion="eliminar" data-id="${t.id}" aria-label="Eliminar ${nombre}">Eliminar</button>`;
   }
@@ -79,6 +93,7 @@ const tarjeta = (t) => {
     </article>`;
 };
 
+// Clics en los botones de las tarjetas
 $("#lista").addEventListener("click", async (evento) => {
   const boton = evento.target.closest("button[data-accion]");
   if (!boton) return;
@@ -92,7 +107,7 @@ $("#lista").addEventListener("click", async (evento) => {
     } else if (boton.dataset.accion === "editar") {
       abrirFormulario(await api("api/tutorias.php?id=" + id));
     } else if (boton.dataset.accion === "eliminar") {
-      if (!confirm("¿Eliminar esta tutoría? Se borrarán también sus solicitudes e inscripciones.")) return;
+      if (!confirm("¿Eliminar esta tutoría? Se borrarán también sus solicitudes.")) return;
       await accion("api/tutorias.php", "DELETE", { id });
       cargar();
     }
@@ -102,6 +117,7 @@ $("#lista").addEventListener("click", async (evento) => {
   }
 });
 
+// Filtrar y limpiar
 $("#filtros").addEventListener("submit", (evento) => {
   evento.preventDefault();
   cargar();
@@ -112,6 +128,7 @@ $("#btnLimpiar").addEventListener("click", () => {
   cargar();
 });
 
+// Abre el formulario vacío (nueva) o con datos (editar)
 const abrirFormulario = (t = null) => {
   $("#formTutoria").reset();
   $("#errorForm").textContent = "";
@@ -132,6 +149,7 @@ const abrirFormulario = (t = null) => {
   $("#formTutoria").scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
+// Oculta el formulario
 const cerrarFormulario = () => {
   $("#formTutoria").classList.add("oculto");
   if (location.search) history.replaceState(null, "", "tutorias.php");
@@ -140,6 +158,7 @@ const cerrarFormulario = () => {
 $("#btnNueva").addEventListener("click", () => abrirFormulario());
 $("#btnCancelarForm").addEventListener("click", cerrarFormulario);
 
+// Validación antes de enviar
 const validarFormulario = (d) => {
   if (!d.materia_id) return "Selecciona una materia";
   if (!d.tema) return "El tema es obligatorio";
@@ -152,6 +171,7 @@ const validarFormulario = (d) => {
   return "";
 };
 
+// Guardar: POST si es nueva, PUT si se edita
 $("#formTutoria").addEventListener("submit", async (evento) => {
   evento.preventDefault();
   const datos = {
@@ -182,4 +202,5 @@ $("#formTutoria").addEventListener("submit", async (evento) => {
   }
 });
 
+// Arranque
 iniciar();
