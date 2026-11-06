@@ -1,3 +1,4 @@
+-- Base de datos de MarianOpen (se borra y se crea de nuevo)
 DROP DATABASE IF EXISTS sistema_tutorias;
 CREATE DATABASE sistema_tutorias
 CHARACTER SET utf8mb4
@@ -5,6 +6,7 @@ COLLATE utf8mb4_unicode_ci;
 
 USE sistema_tutorias;
 
+-- Usuarios: una tabla por rol
 CREATE TABLE administradores (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
@@ -32,11 +34,13 @@ CREATE TABLE estudiantes (
     fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Materias
 CREATE TABLE materias (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(80) NOT NULL UNIQUE
 );
 
+-- Tutorías que ofrecen los profesores
 CREATE TABLE tutorias (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     profesor_id INT UNSIGNED NOT NULL,
@@ -57,6 +61,7 @@ CREATE TABLE tutorias (
     CONSTRAINT chk_horas CHECK (hora_fin > hora_inicio)
 );
 
+-- Solicitudes de los estudiantes a una tutoría
 CREATE TABLE solicitudes (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     tutoria_id INT UNSIGNED NOT NULL,
@@ -69,6 +74,7 @@ CREATE TABLE solicitudes (
     CONSTRAINT uq_solicitud UNIQUE (tutoria_id, estudiante_id)
 );
 
+-- Inscripciones: solicitudes aceptadas (ocupan cupo)
 CREATE TABLE inscripciones (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     tutoria_id INT UNSIGNED NOT NULL,
@@ -81,6 +87,21 @@ CREATE TABLE inscripciones (
     CONSTRAINT uq_inscripcion UNIQUE (tutoria_id, estudiante_id)
 );
 
+-- Calificación de cada inscripción
+CREATE TABLE notas (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    inscripcion_id INT UNSIGNED NOT NULL,
+    asistio TINYINT(1) NOT NULL DEFAULT 1,
+    nota DECIMAL(5,2) NULL,
+    comentario VARCHAR(255) NULL,
+    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_nota_ins FOREIGN KEY (inscripcion_id) REFERENCES inscripciones(id) ON DELETE CASCADE,
+    CONSTRAINT uq_nota UNIQUE (inscripcion_id),
+    CONSTRAINT chk_nota CHECK (nota IS NULL OR (nota >= 0 AND nota <= 100))
+);
+
+-- Datos de prueba
 INSERT INTO administradores (nombre, correo, password) VALUES
 ('Administrador', 'admin@uni.edu', '$2y$10$BN0r0wM4fHmtswQY0gKzA.ncHxCirDeML1lpLVltJy59HClq/PKdK');
 
