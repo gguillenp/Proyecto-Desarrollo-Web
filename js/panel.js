@@ -1,6 +1,9 @@
+// Panel: resumen con números según el rol
+// Tarjeta con un número y su nombre
 const indicador = (numero, nombre) =>
   `<div class="caja indicador"><div class="numero">${numero}</div><div class="nombre">${nombre}</div></div>`;
 
+// Carga los datos y pinta el panel del rol
 const iniciar = async () => {
   const usuario = await iniciarPagina();
   if (!usuario) return;
@@ -22,22 +25,31 @@ const iniciar = async () => {
   }
 };
 
+// Panel del admin: totales y accesos de gestión
 const panelAdmin = (d) => {
   $("#indicadores").innerHTML =
     indicador(d.profesores, "Profesores") +
     indicador(d.estudiantes, "Estudiantes") +
-    indicador(d.tutorias, "Tutorías");
+    indicador(d.tutorias, "Tutorías") +
+    indicador(d.materias, "Materias");
 
-  $("#detalle").innerHTML = `<div class="acciones"><a class="boton" href="profesores.php">Gestionar profesores</a></div>`;
+  $("#detalle").innerHTML = `<div class="acciones">
+    <a class="boton" href="tutorias.php">Gestionar tutorías</a>
+    <a class="boton" href="profesores.php">Gestionar profesores</a>
+    <a class="boton" href="alumnos.php">Gestionar estudiantes</a>
+    <a class="boton" href="materias.php">Gestionar materias</a></div>`;
 };
 
+// Panel del profesor: números y tabla de sus tutorías
 const panelProfesor = (d) => {
   $("#indicadores").innerHTML =
     indicador(d.tutorias_total, "Tutorías creadas") +
     indicador(d.tutorias_abiertas, "Abiertas") +
     indicador(d.tutorias_confirmadas, "Confirmadas") +
+    indicador(d.tutorias_finalizadas, "Finalizadas") +
     indicador(d.estudiantes_inscritos, "Estudiantes inscritos") +
-    indicador(d.solicitudes_pendientes, "Solicitudes pendientes");
+    indicador(d.solicitudes_pendientes, "Solicitudes pendientes") +
+    indicador(d.por_calificar, "Por calificar");
 
   const filas = d.tutorias.map((t) => {
     const faltan = Math.max(0, t.cupo_min - t.ocupados);
@@ -58,13 +70,15 @@ const panelProfesor = (d) => {
     <div class="acciones"><a class="boton" href="tutorias.php">Gestionar tutorías</a></div></div>`;
 };
 
+// Panel del estudiante: números y próximas tutorías
 const panelEstudiante = (d) => {
   $("#indicadores").innerHTML =
-    indicador(d.disponibles, "Tutorías disponibles") +
-    indicador(d.solicitudes.pendiente, "Solicitudes pendientes") +
-    indicador(d.solicitudes.aceptada, "Aceptadas") +
-    indicador(d.solicitudes.rechazada, "Rechazadas") +
-    indicador(d.solicitudes.cancelada, "Canceladas");
+    indicador(d.disponibles, "Disponibles") +
+    indicador(d.pendientes, "Solicitudes pendientes") +
+    indicador(d.inscritas, "Inscritas") +
+    indicador(d.finalizadas, `Finalizadas · ${d.aprobadas} aprobada${d.aprobadas === 1 ? "" : "s"}`) +
+    indicador(d.rechazadas, "Rechazadas") +
+    indicador(d.canceladas, "Canceladas");
 
   const filas = d.proximas.map((t) => `<tr>
       <td><a href="tutoria.php?id=${t.id}">${esc(t.titulo)}</a><br><span class="suave">${esc(t.tema)}</span></td>
@@ -82,4 +96,5 @@ const panelEstudiante = (d) => {
     <a class="boton secundario" href="mis-solicitudes.php">Ver mis solicitudes</a></div></div>`;
 };
 
+// Arranque
 iniciar();

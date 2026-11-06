@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . "/api/core/Pagina.php");
+// Mis solicitudes (solo estudiante)
 Pagina::privada("estudiante");
 ?>
 <!DOCTYPE html>
@@ -7,29 +8,32 @@ Pagina::privada("estudiante");
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mis solicitudes - Sistema de Tutorías</title>
+  <title>Mis solicitudes - MarianOpen</title>
   <meta name="description" content="Historial de tus solicitudes de tutoría y su estado: pendiente, aceptada, rechazada o cancelada.">
   <meta name="robots" content="noindex, nofollow">
-  <meta property="og:title" content="Mis solicitudes - Sistema de Tutorías">
+  <meta property="og:title" content="Mis solicitudes - MarianOpen">
   <meta property="og:description" content="Historial de tus solicitudes de tutoría y su estado.">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Sistema de Tutorías">
+  <meta property="og:site_name" content="MarianOpen">
   <meta property="og:locale" content="es_GT">
   <link rel="stylesheet" href="css/estilos.css">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.png" type="image/png">
 </head>
 <body>
+  <!-- Encabezado: logo y menú (el menú lo pinta js/sesion.js) -->
   <header class="encabezado">
     <div class="contenido">
-      <p class="marca">Sistema de Tutorías</p>
+      <a class="marca" href="panel.php"><img src="img/logo.webp" alt="MarianOpen" width="160" height="31"></a>
       <nav class="menu" id="menu" aria-label="Menú principal"></nav>
     </div>
   </header>
 
+  <!-- Contenido principal de la página -->
   <main>
     <h1>Mis solicitudes</h1>
     <p class="suave">Historial de todas tus solicitudes, antes y después de ser resueltas por el profesor.</p>
 
+    <!-- Filtro por estado -->
     <div class="caja">
       <div class="campo-corto">
         <label for="f_estado">Filtrar por estado</label>
@@ -37,23 +41,26 @@ Pagina::privada("estudiante");
           <option value="">Todas</option>
           <option value="pendiente">Pendiente</option>
           <option value="aceptada">Aceptada</option>
+          <option value="finalizada">Finalizada</option>
           <option value="rechazada">Rechazada</option>
           <option value="cancelada">Cancelada</option>
         </select>
       </div>
     </div>
 
+    <!-- Tabla de solicitudes -->
     <div class="caja tabla-scroll">
       <table>
         <caption class="solo-lectores">Solicitudes de tutoría</caption>
         <thead>
-          <tr><th scope="col">Tutoría</th><th scope="col">Materia / tema</th><th scope="col">Profesor</th><th scope="col">Fecha</th><th scope="col">Solicitada</th><th scope="col">Resuelta</th><th scope="col">Estado</th><th scope="col"><span class="solo-lectores">Acciones</span></th></tr>
+          <tr><th scope="col">Tutoría</th><th scope="col">Materia / tema</th><th scope="col">Profesor</th><th scope="col">Fecha</th><th scope="col">Solicitada</th><th scope="col">Resuelta</th><th scope="col">Estado</th><th scope="col">Nota</th><th scope="col"><span class="solo-lectores">Acciones</span></th></tr>
         </thead>
         <tbody id="filas"></tbody>
       </table>
     </div>
   </main>
 
+  <!-- Scripts: utilidades, sesión/menú y lógica de esta página -->
   <script src="js/api.js"></script>
   <script src="js/sesion.js"></script>
   <script src="js/solicitudes.js"></script>

@@ -1,13 +1,16 @@
 <?php
+// Solicitudes de inscripción a tutorías
 require_once(__DIR__ . "/Connection.php");
 require_once(__DIR__ . "/core/Request.php");
 require_once(__DIR__ . "/core/Auth.php");
 require_once(__DIR__ . "/core/Cupos.php");
+require_once(__DIR__ . "/core/Notas.php");
 
 $pdo = new Connection();
 $u = Auth::requiere($pdo);
 $metodo = $_SERVER["REQUEST_METHOD"];
 
+// Deshace la transacción y responde error
 function abortar(PDO $pdo, string $mensaje, int $status = 400): void
 {
     if ($pdo->inTransaction()) {
@@ -16,24 +19,31 @@ function abortar(PDO $pdo, string $mensaje, int $status = 400): void
     Response::error($mensaje, -1, $status);
 }
 
+// GET: el estudiante ve las suyas (con nota); profesor/admin, las de una tutoría
 if ($metodo === "GET") {
     if ($u["rol"] === "estudiante") {
         $st = $pdo->prepare("SELECT s.id, s.estado, s.fecha_solicitud, s.fecha_resolucion,
                 t.id AS tutoria_id, t.titulo, t.tema, m.nombre AS materia, p.nombre AS profesor,
-                t.fecha, t.hora_inicio, t.hora_fin, t.estado AS estado_tutoria
+                t.fecha, t.hora_inicio, t.hora_fin, t.estado AS estado_tutoria, n.asistio, n.nota, n.comentario
             FROM solicitudes s
             JOIN tutorias t ON t.id = s.tutoria_id
             JOIN materias m ON m.id = t.materia_id
             JOIN profesores p ON p.id = t.profesor_id
+            LEFT JOIN inscripciones i ON i.solicitud_id = s.id
+            LEFT JOIN notas n ON n.inscripcion_id = i.id
             WHERE s.estudiante_id = ?
             ORDER BY s.fecha_solicitud DESC");
         $st->execute([$u["id"]]);
-        Response::success($st->fetchAll());
+        Response::success(array_map(function ($fila) {
+            $fila["resultado"] = Notas::resultado($fila["asistio"], $fila["nota"]);
+            return $fila;
+        }, $st->fetchAll()));
     }
 
+    // Solicitudes de una tutoría (profesor dueño o admin)
     $tid = (int)($_GET["tutoria_id"] ?? 0);
-    $chk = $pdo->prepare("SELECT 1 FROM tutorias WHERE id = ? AND profesor_id = ?");
-    $chk->execute([$tid, $u["id"]]);
+    $chk = $pdo->prepare("SELECT 1 FROM tutorias WHERE id = ? AND (profesor_id = ? OR ? = 'admin')");
+    $chk->execute([$tid, $u["id"], $u["rol"]]);
     if (!$chk->fetch()) {
         Response::error("Tutoría no encontrada", -1, 404);
     }
@@ -46,6 +56,7 @@ if ($metodo === "GET") {
     Response::success($st->fetchAll());
 }
 
+// POST: el estudiante solicita una tutoría
 if ($metodo === "POST") {
     Auth::requiere($pdo, "estudiante");
     $tid = (int)(Request::body()["tutoria_id"] ?? 0);
@@ -83,6 +94,7 @@ if ($metodo === "POST") {
     Response::success(null, "Solicitud enviada, queda pendiente de aprobación", 201);
 }
 
+// PUT: el profesor acepta o rechaza una solicitud
 if ($metodo === "PUT") {
     Auth::requiere($pdo, "profesor");
     $d = Request::body();
@@ -110,6 +122,7 @@ if ($metodo === "PUT") {
         abortar($pdo, "La tutoría está cancelada");
     }
 
+    // Al aceptar: revisa hora y cupo, y crea la inscripción
     if ($nuevo === "aceptada") {
         if ($s["fecha"] . " " . $s["hora_inicio"] <= date("Y-m-d H:i:s")) {
             abortar($pdo, "La tutoría ya empezó: no se pueden aceptar más estudiantes");
@@ -126,12 +139,13 @@ if ($metodo === "PUT") {
     Response::success(null, "Solicitud " . $nuevo);
 }
 
+// DELETE: el estudiante cancela su solicitud antes de que empiece
 if ($metodo === "DELETE") {
     Auth::requiere($pdo, "estudiante");
     $sid = (int)(Request::body()["id"] ?? $_GET["id"] ?? 0);
 
     $pdo->beginTransaction();
-    $st = $pdo->prepare("SELECT s.*, t.estado AS estado_tutoria, t.cupo_min
+    $st = $pdo->prepare("SELECT s.*, t.estado AS estado_tutoria, t.cupo_min, t.fecha, t.hora_inicio
         FROM solicitudes s JOIN tutorias t ON t.id = s.tutoria_id WHERE s.id = ? AND s.estudiante_id = ? FOR UPDATE");
     $st->execute([$sid, $u["id"]]);
     $s = $st->fetch();
@@ -141,7 +155,11 @@ if ($metodo === "DELETE") {
     if (!in_array($s["estado"], ["pendiente", "aceptada"], true)) {
         abortar($pdo, "Esta solicitud ya no se puede cancelar", 409);
     }
+    if ($s["fecha"] . " " . $s["hora_inicio"] <= date("Y-m-d H:i:s")) {
+        abortar($pdo, "La tutoría ya empezó: no se puede cancelar", 409);
+    }
 
+    // Si estaba aceptada, libera el cupo
     if ($s["estado"] === "aceptada") {
         $pdo->prepare("DELETE FROM inscripciones WHERE solicitud_id = ?")->execute([$sid]);
         if ($s["estado_tutoria"] === "confirmada" && Cupos::ocupados($pdo, (int)$s["tutoria_id"]) < (int)$s["cupo_min"]) {
