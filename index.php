@@ -45,6 +45,14 @@ Pagina::publica();
     </section>
   </main>
 
+  <!-- Pie de página: autores con enlace a su portafolio -->
+  <footer class="pie">
+    <p>Autores</p>
+    <a class="boton chico" href="https://gguillenp.github.io/portafolio-gabrielg/" target="_blank" rel="noopener">Gabriel Guillén</a>
+    <a class="boton chico" href="https://marioo-t.github.io/portafolio-mario/" target="_blank" rel="noopener">Mario Taracena</a>
+    <a class="boton chico" href="https://dylanherdz.github.io/" target="_blank" rel="noopener">Dylan Hernández</a>
+  </footer>
+
   <script src="js/api.js"></script>
   <!-- Lógica del login -->
   <script>
