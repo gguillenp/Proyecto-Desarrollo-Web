@@ -55,7 +55,7 @@ main { padding: 15px; max-width: 1000px; margin: 0 auto; }
 /* Pie de página con los autores */
 .pie { text-align: center; padding: 0 15px 30px; }
 .pie p { margin: 0 0 8px; font-weight: bold; }
-.pie .boton { display: inline-block; text-decoration: none; }
+.pie .boton { display: inline-block; text-decoration: none; margin: 0 3px 6px; }
 
 /* Formularios */
 label { display: block; margin: 8px 0 3px; }
