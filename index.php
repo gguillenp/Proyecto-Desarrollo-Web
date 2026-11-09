@@ -45,6 +45,12 @@ Pagina::publica();
     </section>
   </main>
 
+  <!-- Pie de página: autores con enlace a su portafolio -->
+  <footer class="pie">
+    <p>Autores</p>
+    <a class="boton chico" href="https://gguillenp.github.io/portafolio-gabrielg/" target="_blank" rel="noopener">Gabriel Guillén</a>
+  </footer>
+
   <script src="js/api.js"></script>
   <!-- Lógica del login -->
   <script>

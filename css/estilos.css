@@ -52,6 +52,11 @@ main { padding: 15px; max-width: 1000px; margin: 0 auto; }
 .centrado .caja { max-width: 400px; margin: 40px auto; }
 .separado { margin-top: 15px; }
 
+/* Pie de página con los autores */
+.pie { text-align: center; padding: 0 15px 30px; }
+.pie p { margin: 0 0 8px; font-weight: bold; }
+.pie .boton { display: inline-block; text-decoration: none; }
+
 /* Formularios */
 label { display: block; margin: 8px 0 3px; }
 input, select, textarea { width: 100%; padding: 6px 8px; border: 1px solid #c5ccd6; border-radius: 8px; font: inherit; }
